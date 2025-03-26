@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { pcBuilds, componentTypes } from "@/data/mockData";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,11 @@ const BuildsPage = () => {
   const [purpose, setPurpose] = useState("all");
   const [filteredBuilds, setFilteredBuilds] = useState(pcBuilds);
   const [selectedBuild, setSelectedBuild] = useState(pcBuilds[0]);
+  
+  // Filter builds whenever filters change
+  useEffect(() => {
+    filterBuilds();
+  }, [priceRange, purpose]);
 
   // Filter builds based on criteria
   const filterBuilds = () => {
@@ -129,7 +134,6 @@ const BuildsPage = () => {
                 onClick={() => {
                   setPurpose("all");
                   setPriceRange([0, 4000]);
-                  setFilteredBuilds(pcBuilds);
                 }}
               >
                 Reset
