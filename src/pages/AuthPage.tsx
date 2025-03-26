@@ -13,6 +13,7 @@ import { Link } from "react-router-dom";
 const AuthPage = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<"signin" | "signup">("signin");
 
   const handleSignIn = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +45,15 @@ const AuthPage = () => {
     }, 1500);
   };
 
+  // Function to switch tabs
+  const switchToSignUp = () => {
+    setActiveTab("signup");
+  };
+
+  const switchToSignIn = () => {
+    setActiveTab("signin");
+  };
+
   return (
     <div className="min-h-[80vh] flex items-center justify-center">
       <div className="w-full max-w-md">
@@ -61,7 +71,7 @@ const AuthPage = () => {
             <p className="text-muted-foreground">Sign in to access your account</p>
           </div>
 
-          <Tabs defaultValue="signin" className="w-full">
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "signin" | "signup")} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-8">
               <TabsTrigger value="signin">Sign In</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -109,8 +119,9 @@ const AuthPage = () => {
                   <div className="text-sm text-muted-foreground">
                     Don't have an account?{" "}
                     <button
-                      onClick={() => document.querySelector('[value="signup"]')?.click()}
+                      onClick={switchToSignUp}
                       className="text-primary hover:underline"
+                      type="button"
                     >
                       Sign up
                     </button>
@@ -170,8 +181,9 @@ const AuthPage = () => {
                   <div className="text-sm text-muted-foreground">
                     Already have an account?{" "}
                     <button
-                      onClick={() => document.querySelector('[value="signin"]')?.click()}
+                      onClick={switchToSignIn}
                       className="text-primary hover:underline"
+                      type="button"
                     >
                       Sign in
                     </button>
