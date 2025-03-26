@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { AlertCircle, CheckCircle, ChevronRight, Cpu, Save, Search, Star, X } from "lucide-react";
+import { AlertCircle, CheckCircle, ChevronDown, ChevronRight, ChevronUp, Cpu, Save, Search, Star, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -20,9 +20,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const ConfiguratorPage = () => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState(componentTypes[0].id);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedComponents, setSelectedComponents] = useState<Record<string, Component | null>>(
@@ -30,6 +32,7 @@ const ConfiguratorPage = () => {
   );
   const [buildName, setBuildName] = useState("");
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
+  const [showBuildSummary, setShowBuildSummary] = useState(!isMobile);
 
   // Get filtered components for the current active tab
   const getFilteredComponents = () => {
@@ -56,6 +59,13 @@ const ConfiguratorPage = () => {
       description: `${component.name} has been added to your configuration.`,
       variant: "default",
     });
+
+    if (isMobile) {
+      // On mobile, automatically go to the next component type after selection
+      const currentTypeIndex = componentTypes.findIndex(type => type.id === activeTab);
+      const nextTypeIndex = (currentTypeIndex + 1) % componentTypes.length;
+      setActiveTab(componentTypes[nextTypeIndex].id);
+    }
   };
 
   // Handle component removal
@@ -99,6 +109,12 @@ const ConfiguratorPage = () => {
     setIsSaveDialogOpen(false);
   };
 
+  const toggleBuildSummary = () => {
+    setShowBuildSummary(!showBuildSummary);
+  };
+
+  const selectedComponentsCount = Object.values(selectedComponents).filter(Boolean).length;
+
   return (
     <div className="space-y-6">
       <motion.div
@@ -113,12 +129,27 @@ const ConfiguratorPage = () => {
         </p>
       </motion.div>
 
+      {/* Current Build Summary - Mobile Floating Button */}
+      {isMobile && (
+        <div className="fixed bottom-4 right-4 z-10">
+          <Button 
+            onClick={toggleBuildSummary} 
+            className="rounded-full shadow-lg flex items-center justify-center h-14 w-14"
+          >
+            <Badge className="absolute -top-1 -right-1 h-6 w-6 flex items-center justify-center p-0 rounded-full">
+              {selectedComponentsCount}
+            </Badge>
+            <Cpu className="h-6 w-6" />
+          </Button>
+        </div>
+      )}
+
       <div className="grid lg:grid-cols-[1fr_350px] gap-6">
         {/* Component Selection Area */}
         <div className="space-y-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="flex items-center justify-between">
-              <TabsList className="w-auto">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <TabsList className="w-full sm:w-auto overflow-x-auto">
                 {componentTypes.map((type) => (
                   <TabsTrigger key={type.id} value={type.id} className="min-w-[100px]">
                     {type.name}
@@ -126,11 +157,11 @@ const ConfiguratorPage = () => {
                 ))}
               </TabsList>
               
-              <div className="relative w-60">
+              <div className="relative w-full sm:w-60">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
                   placeholder={`Search ${componentTypes.find((t) => t.id === activeTab)?.name}...`}
-                  className="pl-10"
+                  className="pl-10 w-full"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -149,7 +180,7 @@ const ConfiguratorPage = () => {
                       className="relative"
                     >
                       <Card 
-                        className={`overflow-hidden hover-scale ${
+                        className={`overflow-hidden hover:shadow-md transition-all ${
                           selectedComponents[component.type]?.id === component.id 
                             ? "ring-2 ring-primary" 
                             : ""
@@ -160,7 +191,7 @@ const ConfiguratorPage = () => {
                             <Badge className="bg-primary">Selected</Badge>
                           </div>
                         )}
-                        <div className="h-40 bg-muted flex items-center justify-center p-4">
+                        <div className="h-32 sm:h-40 bg-muted flex items-center justify-center p-4">
                           <img
                             src={component.image}
                             alt={component.name}
@@ -222,19 +253,28 @@ const ConfiguratorPage = () => {
           </Tabs>
         </div>
 
-        {/* Current Build Summary */}
-        <div className="space-y-6">
+        {/* Current Build Summary - Desktop or Mobile Expanded View */}
+        {(!isMobile || showBuildSummary) && (
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            initial={isMobile ? { opacity: 0, y: 100 } : { opacity: 0, x: 20 }}
+            animate={isMobile ? { opacity: 1, y: 0 } : { opacity: 1, x: 0 }}
+            exit={isMobile ? { opacity: 0, y: 100 } : { opacity: 0, x: 20 }}
+            transition={{ duration: 0.3 }}
+            className={isMobile ? "fixed inset-0 z-50 overflow-y-auto pt-16 bg-background" : ""}
           >
-            <Card className="sticky top-24">
-              <CardHeader>
-                <CardTitle>Your Build</CardTitle>
-                <CardDescription>
-                  Select components from each category to complete your build
-                </CardDescription>
+            <Card className={isMobile ? "h-full rounded-none" : "sticky top-24"}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div>
+                  <CardTitle>Your Build</CardTitle>
+                  <CardDescription>
+                    Select components from each category to complete your build
+                  </CardDescription>
+                </div>
+                {isMobile && (
+                  <Button variant="ghost" size="sm" onClick={toggleBuildSummary}>
+                    <X className="h-5 w-5" />
+                  </Button>
+                )}
               </CardHeader>
               <CardContent className="space-y-4">
                 {componentTypes.map((type) => {
@@ -281,7 +321,10 @@ const ConfiguratorPage = () => {
                       ) : (
                         <div
                           className="mt-2 text-sm text-muted-foreground flex items-center space-x-1 cursor-pointer"
-                          onClick={() => setActiveTab(type.id)}
+                          onClick={() => {
+                            setActiveTab(type.id);
+                            if (isMobile) toggleBuildSummary();
+                          }}
                         >
                           <span>Select a {type.name.toLowerCase()}</span>
                           <ChevronRight className="h-4 w-4" />
@@ -300,7 +343,7 @@ const ConfiguratorPage = () => {
 
                 <div className="flex justify-between items-center">
                   <div className="text-sm text-muted-foreground">
-                    {Object.values(selectedComponents).filter(Boolean).length} of{" "}
+                    {selectedComponentsCount} of{" "}
                     {componentTypes.length} components selected
                   </div>
                   <Badge
@@ -324,7 +367,7 @@ const ConfiguratorPage = () => {
                       Save Build
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className={isMobile ? "w-[95vw] max-w-lg" : ""}>
                     <DialogHeader>
                       <DialogTitle>Save Your Build</DialogTitle>
                       <DialogDescription>
@@ -378,7 +421,7 @@ const ConfiguratorPage = () => {
               </CardFooter>
             </Card>
           </motion.div>
-        </div>
+        )}
       </div>
     </div>
   );

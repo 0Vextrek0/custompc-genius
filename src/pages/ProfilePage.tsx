@@ -31,10 +31,20 @@ import {
   Trash, 
   User, 
   UserCircle,
-  Copy
+  Copy,
+  X
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table";
 
 // Mock saved builds
 const savedBuilds = [
@@ -50,9 +60,14 @@ const savedBuilds = [
   },
 ];
 
+// Mock comparison builds
+const comparisonBuilds = [savedBuilds[0], savedBuilds[1]];
+
 const ProfilePage = () => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [selectedBuild, setSelectedBuild] = useState(savedBuilds[0]);
+  const [selectedCompareBuilds, setSelectedCompareBuilds] = useState(comparisonBuilds);
 
   const handleDeleteBuild = (buildId: string) => {
     toast({
@@ -70,12 +85,31 @@ const ProfilePage = () => {
     });
   };
 
-  const handleAddToCompare = (buildId: string) => {
+  const handleRemoveFromCompare = (buildId: string) => {
+    setSelectedCompareBuilds(selectedCompareBuilds.filter(build => build.id !== buildId));
     toast({
-      title: "Added to Compare",
-      description: "Build has been added to comparison list.",
+      title: "Removed from Compare",
+      description: "Build has been removed from comparison list.",
       variant: "default",
     });
+  };
+
+  const handleAddToCompare = (buildId: string) => {
+    const buildToAdd = savedBuilds.find(build => build.id === buildId);
+    if (buildToAdd && !selectedCompareBuilds.some(build => build.id === buildId)) {
+      setSelectedCompareBuilds([...selectedCompareBuilds, buildToAdd]);
+      toast({
+        title: "Added to Compare",
+        description: "Build has been added to comparison list.",
+        variant: "default",
+      });
+    } else {
+      toast({
+        title: "Already in Compare",
+        description: "This build is already in your comparison list.",
+        variant: "default",
+      });
+    }
   };
 
   return (
@@ -109,10 +143,14 @@ const ProfilePage = () => {
         </div>
 
         <Tabs defaultValue="builds" className="space-y-6">
-          <TabsList>
+          <TabsList className="overflow-x-auto">
             <TabsTrigger value="builds" className="min-w-[120px]">
               <Package className="h-4 w-4 mr-2" />
               Saved Builds
+            </TabsTrigger>
+            <TabsTrigger value="compare" className="min-w-[120px]">
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Compare
             </TabsTrigger>
             <TabsTrigger value="account" className="min-w-[120px]">
               <User className="h-4 w-4 mr-2" />
@@ -311,6 +349,119 @@ const ProfilePage = () => {
                 </motion.div>
               )}
             </div>
+          </TabsContent>
+          
+          {/* Compare Tab */}
+          <TabsContent value="compare" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Compare Your Builds</CardTitle>
+                <CardDescription>
+                  View your builds side by side to compare components and specifications
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {selectedCompareBuilds.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[200px]">Component</TableHead>
+                          {selectedCompareBuilds.map((build) => (
+                            <TableHead key={build.id} className="min-w-[250px]">
+                              <div className="flex items-center justify-between">
+                                <span>{build.name}</span>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-8 w-8 p-0"
+                                  onClick={() => handleRemoveFromCompare(build.id)}
+                                >
+                                  <X className="h-4 w-4" />
+                                  <span className="sr-only">Remove</span>
+                                </Button>
+                              </div>
+                            </TableHead>
+                          ))}
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="font-medium">Price</TableCell>
+                          {selectedCompareBuilds.map((build) => (
+                            <TableCell key={`${build.id}-price`} className="font-bold">
+                              ${build.price.toLocaleString()}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">Category</TableCell>
+                          {selectedCompareBuilds.map((build) => (
+                            <TableCell key={`${build.id}-category`}>
+                              {build.category}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                        {componentTypes.map((type) => (
+                          <TableRow key={type.id}>
+                            <TableCell className="font-medium">{type.name}</TableCell>
+                            {selectedCompareBuilds.map((build) => {
+                              const component = build.components.find(c => c.type === type.id);
+                              return (
+                                <TableCell key={`${build.id}-${type.id}`}>
+                                  {component ? (
+                                    <div className="flex items-center space-x-2">
+                                      <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
+                                        <img 
+                                          src={component.image} 
+                                          alt={component.name}
+                                          className="w-6 h-6 object-contain" 
+                                        />
+                                      </div>
+                                      <div>
+                                        <div className="text-sm font-medium">{component.name}</div>
+                                        <div className="text-xs text-muted-foreground">${component.price}</div>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <span className="text-sm italic text-muted-foreground">Not included</span>
+                                  )}
+                                </TableCell>
+                              );
+                            })}
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                ) : (
+                  <div className="text-center py-10">
+                    <BarChart3 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-medium mb-2">No builds to compare</h3>
+                    <p className="text-muted-foreground max-w-md mx-auto mb-6">
+                      Add builds to your comparison list to see them side by side
+                    </p>
+                    <Button asChild>
+                      <Link to="/builds">Browse Builds</Link>
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+              {selectedCompareBuilds.length > 0 && (
+                <CardFooter className="border-t pt-4 flex justify-between">
+                  <Button variant="outline" asChild>
+                    <Link to="/compare">
+                      <BarChart3 className="h-4 w-4 mr-2" />
+                      Go to Full Compare Page
+                    </Link>
+                  </Button>
+                  <Button>
+                    <Download className="h-4 w-4 mr-2" />
+                    Download Comparison
+                  </Button>
+                </CardFooter>
+              )}
+            </Card>
           </TabsContent>
 
           <TabsContent value="account">
