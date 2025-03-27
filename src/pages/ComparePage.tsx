@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { pcBuilds, componentTypes, PCBuild } from "@/data/mockData";
@@ -297,124 +298,173 @@ const ComparePage = () => {
             </Card>
           ) : (
             // Mobile View
-            {canNavigate && (
-              <div className="flex items-center justify-between mb-4">
-                <Button variant="outline" size="sm" onClick={showPrevPair} disabled={!canNavigate}>
-                  <ChevronLeft className="h-4 w-4 mr-2" />
-                  Previous
-                </Button>
-                <span className="text-sm text-muted-foreground">
-                  Comparing with {selectedBuilds[currentPairIndex + 1]?.name}
-                </span>
-                <Button variant="outline" size="sm" onClick={showNextPair} disabled={!canNavigate}>
-                  Next
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </Button>
-              </div>
-            )}
+            <>
+              {canNavigate && (
+                <div className="flex items-center justify-between mb-4">
+                  <Button variant="outline" size="sm" onClick={showPrevPair} disabled={!canNavigate}>
+                    <ChevronLeft className="h-4 w-4 mr-2" />
+                    Previous
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    Comparing with {selectedBuilds[currentPairIndex + 1]?.name}
+                  </span>
+                  <Button variant="outline" size="sm" onClick={showNextPair} disabled={!canNavigate}>
+                    Next
+                    <ChevronRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </div>
+              )}
 
-            {/* Mobile comparison view */}
-            <Tabs defaultValue="summary" className="w-full">
-              <TabsList className="w-full mb-4">
-                <TabsTrigger value="summary">Summary</TabsTrigger>
-                <TabsTrigger value="detailed">Detailed</TabsTrigger>
-              </TabsList>
+              {/* Mobile comparison view */}
+              <Tabs defaultValue="summary" className="w-full">
+                <TabsList className="w-full mb-4">
+                  <TabsTrigger value="summary">Summary</TabsTrigger>
+                  <TabsTrigger value="detailed">Detailed</TabsTrigger>
+                </TabsList>
 
-              <TabsContent value="summary">
-                <div className="space-y-4">
-                  {/* Build Cards */}
-                  <div className="grid grid-cols-2 gap-3">
-                    {activeBuilds.map((build) => (
-                      <Card key={build.id} className="overflow-hidden">
-                        <div className="absolute top-1 right-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0"
-                            onClick={() => handleRemoveBuild(build.id)}
-                          >
-                            <X className="h-3 w-3" />
-                            <span className="sr-only">Remove</span>
-                          </Button>
-                        </div>
-                        <CardHeader className="p-3">
-                          <div className="aspect-video rounded-sm overflow-hidden mb-2">
-                            <img
-                              src={build.image}
-                              alt={build.name}
-                              className="w-full h-full object-cover"
-                            />
+                <TabsContent value="summary">
+                  <div className="space-y-4">
+                    {/* Build Cards */}
+                    <div className="grid grid-cols-2 gap-3">
+                      {activeBuilds.map((build) => (
+                        <Card key={build.id} className="overflow-hidden">
+                          <div className="absolute top-1 right-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0"
+                              onClick={() => handleRemoveBuild(build.id)}
+                            >
+                              <X className="h-3 w-3" />
+                              <span className="sr-only">Remove</span>
+                            </Button>
                           </div>
-                          <CardTitle className="text-sm">{build.name}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-3 pt-0">
-                          <div className="flex items-center justify-between text-xs mb-1">
-                            <div className="flex items-center">
-                              <Star className="h-3 w-3 text-yellow-500 fill-yellow-500 mr-1" />
-                              <span>{build.rating}</span>
+                          <CardHeader className="p-3">
+                            <div className="aspect-video rounded-sm overflow-hidden mb-2">
+                              <img
+                                src={build.image}
+                                alt={build.name}
+                                className="w-full h-full object-cover"
+                              />
                             </div>
-                            <span className="font-bold">${build.price}</span>
-                          </div>
-                          <Badge variant="outline" className="text-xs px-1 py-0">{build.category}</Badge>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+                            <CardTitle className="text-sm">{build.name}</CardTitle>
+                          </CardHeader>
+                          <CardContent className="p-3 pt-0">
+                            <div className="flex items-center justify-between text-xs mb-1">
+                              <div className="flex items-center">
+                                <Star className="h-3 w-3 text-yellow-500 fill-yellow-500 mr-1" />
+                                <span>{build.rating}</span>
+                              </div>
+                              <span className="font-bold">${build.price}</span>
+                            </div>
+                            <Badge variant="outline" className="text-xs px-1 py-0">{build.category}</Badge>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
 
-                  {/* Key Components Comparison */}
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Component</TableHead>
-                        {activeBuilds.map((build) => (
-                          <TableHead key={build.id} className="text-right">
-                            {build.name}
-                          </TableHead>
+                    {/* Key Components Comparison */}
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Component</TableHead>
+                          {activeBuilds.map((build) => (
+                            <TableHead key={build.id} className="text-right">
+                              {build.name}
+                            </TableHead>
+                          ))}
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {componentTypes.slice(0, 5).map((type) => (
+                          <TableRow key={type.id}>
+                            <TableCell className="font-medium">{type.name}</TableCell>
+                            {activeBuilds.map((build) => {
+                              const component = build.components.find(c => c.type === type.id);
+                              return (
+                                <TableCell key={`${build.id}-${type.id}`} className="text-right">
+                                  {component ? (
+                                    <div className="text-xs font-medium">
+                                      {component.name.length > 15 
+                                        ? `${component.name.substring(0, 15)}...` 
+                                        : component.name}
+                                    </div>
+                                  ) : (
+                                    <span className="text-xs italic text-muted-foreground">Not included</span>
+                                  )}
+                                </TableCell>
+                              );
+                            })}
+                          </TableRow>
                         ))}
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {componentTypes.slice(0, 5).map((type) => (
-                        <TableRow key={type.id}>
-                          <TableCell className="font-medium">{type.name}</TableCell>
+                        <TableRow>
+                          <TableCell className="font-medium">Price</TableCell>
+                          {activeBuilds.map((build) => (
+                            <TableCell key={`${build.id}-price`} className="text-right font-bold">
+                              ${build.price}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="detailed">
+                  {componentTypes.map((type) => (
+                    <Card key={type.id} className="mb-4">
+                      <CardHeader className="py-2 px-3 bg-muted/50">
+                        <CardTitle className="text-sm">{type.name}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-0">
+                        <div className="grid grid-cols-2 divide-x">
                           {activeBuilds.map((build) => {
                             const component = build.components.find(c => c.type === type.id);
                             return (
-                              <TableCell key={`${build.id}-${type.id}`} className="text-right">
+                              <div key={`${build.id}-${type.id}-detail`} className="p-3">
+                                <div className="text-xs font-semibold mb-1">{build.name}</div>
                                 {component ? (
-                                  <div className="text-xs font-medium">
-                                    {component.name.length > 15 
-                                      ? `${component.name.substring(0, 15)}...` 
-                                      : component.name}
+                                  <div className="space-y-2">
+                                    <div className="flex items-center space-x-2">
+                                      <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
+                                        <img
+                                          src={component.image}
+                                          alt={component.name}
+                                          className="w-6 h-6 object-contain"
+                                        />
+                                      </div>
+                                      <div>
+                                        <div className="text-xs font-medium">{component.name}</div>
+                                        <div className="text-xs text-muted-foreground">{component.brand}</div>
+                                      </div>
+                                    </div>
+                                    <div className="text-xs text-right font-semibold">${component.price}</div>
                                   </div>
                                 ) : (
-                                  <span className="text-xs italic text-muted-foreground">Not included</span>
+                                  <div className="h-full flex items-center justify-center text-muted-foreground italic text-xs py-4">
+                                    Not included
+                                  </div>
                                 )}
-                              </TableCell>
+                              </div>
                             );
                           })}
-                        </TableRow>
-                      ))}
-                      <TableRow>
-                        <TableCell className="font-medium">Price</TableCell>
-                        {activeBuilds.map((build) => (
-                          <TableCell key={`${build.id}-price`} className="text-right font-bold">
-                            ${build.price}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </div>
-              </TabsContent>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </TabsContent>
+              </Tabs>
+            </>
+          )}
+        </>
+      ) : (
+        <div className="text-center py-12 border rounded-lg border-dashed">
+          <p className="text-muted-foreground">No builds selected for comparison</p>
+          <p className="text-sm mt-2">Please add builds to compare using the dropdown above</p>
+        </div>
+      )}
+    </div>
+  );
+};
 
-              <TabsContent value="detailed">
-                {componentTypes.map((type) => (
-                  <Card key={type.id} className="mb-4">
-                    <CardHeader className="py-2 px-3 bg-muted/50">
-                      <CardTitle className="text-sm">{type.name}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-0">
-                      <div className="grid grid-cols-2 divide-x">
-                       
-
+export default ComparePage;
