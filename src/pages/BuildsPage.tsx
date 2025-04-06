@@ -245,7 +245,7 @@ const BuildsPage = () => {
                                 <Badge className="mb-2">Official</Badge>
                                 <h3 className="text-lg font-semibold text-white">{build.name}</h3>
                                 <div className="flex items-center text-white/90 mt-1 text-sm">
-                                  <span>${build.price.toLocaleString()}</span>
+                                <span>${build.price ? build.price.toLocaleString() : '0'}</span>
                                   <span className="mx-2">•</span>
                                   <div className="flex items-center">
                                     <Star className="h-3 w-3 fill-yellow-500 text-yellow-500 mr-1" />
@@ -300,7 +300,7 @@ const BuildsPage = () => {
                                               </div>
                                             </div>
                                             <p className="mt-1 text-sm text-white/80">
-                                              Total: ${selectedBuild.price.toLocaleString()}
+                                              Total: ${selectedBuild.price ? selectedBuild.price.toLocaleString() : '0'}
                                             </p>
                                           </div>
                                         </div>
@@ -451,7 +451,7 @@ const BuildsPage = () => {
                                         <Star className="h-4 w-4 fill-yellow-500 text-yellow-500 mr-1" />
                                         {build.rating}
                                       </div>
-                                      <div className="font-bold">${build.price.toLocaleString()}</div>
+                                      <div className="font-bold">${build.price ? build.price.toLocaleString() : '0'}</div>
                                     </div>
                                     <div className="flex space-x-2">
                                       <Dialog>
@@ -515,7 +515,7 @@ const BuildsPage = () => {
                                 <Badge variant="outline" className="mb-2">By {build.creator}</Badge>
                                 <h3 className="text-lg font-semibold text-white">{build.name}</h3>
                                 <div className="flex items-center text-white/90 mt-1 text-sm">
-                                  <span>${build.price.toLocaleString()}</span>
+                                  <span>${build.price ? build.price.toLocaleString() : '0'}</span>
                                   <span className="mx-2">•</span>
                                   <div className="flex items-center">
                                     <Star className="h-3 w-3 fill-yellow-500 text-yellow-500 mr-1" />
@@ -576,7 +576,7 @@ const BuildsPage = () => {
                                               </div>
                                             </div>
                                             <p className="mt-1 text-sm text-white/80">
-                                              Total: ${selectedBuild.price.toLocaleString()}
+                                              Total: ${selectedBuild.price ? selectedBuild.price.toLocaleString() : '0'}
                                             </p>
                                           </div>
                                         </div>
@@ -733,7 +733,7 @@ const BuildsPage = () => {
                                         <Star className="h-4 w-4 fill-yellow-500 text-yellow-500 mr-1" />
                                         {build.rating}
                                       </div>
-                                      <div className="font-bold">${build.price.toLocaleString()}</div>
+                                      <div className="font-bold">${build.price ? build.price.toLocaleString() : '0'}</div>
                                     </div>
                                     <div className="flex space-x-2">
                                       <Dialog>
@@ -771,8 +771,39 @@ const BuildsPage = () => {
           </Tabs>
         </motion.div>
       </div>
-    </div>
-  );
-};
-
-export default BuildsPage;
+      
+      {selectedBuild && (
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>{selectedBuild.name}</DialogTitle>
+            <DialogDescription>
+              {selectedBuild.description}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-6 mt-6">
+            <div className="space-y-4">
+              <div className="relative rounded-lg overflow-hidden">
+                <img
+                  src={selectedBuild.image}
+                  alt={selectedBuild.name}
+                  className="w-full aspect-video object-cover"
+                />
+                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                  <Badge className="mb-2">Official</Badge>
+                  <div className="text-white">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">{selectedBuild.name}</h3>
+                      <div className="flex items-center">
+                        <Star className="h-4 w-4 fill-yellow-500 text-yellow-500 mr-1" />
+                        <span>{selectedBuild.rating}</span>
+                      </div>
+                    </div>
+                    <p className="mt-1 text-sm text-white/80">
+                      Total: ${selectedBuild.price ? selectedBuild.price.toLocaleString() : '0'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex flex
