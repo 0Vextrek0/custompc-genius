@@ -24,21 +24,21 @@ import { useToast } from "@/hooks/use-toast";
 
 const userBuilds = [
   {
-    ...pcBuilds[2],
+    ...pcBuilds[0],
     id: "user-build-1",
     name: "My Custom Gaming Rig",
     creator: "JohnDoe",
     createdAt: "2023-12-15",
   },
   {
-    ...pcBuilds[3],
+    ...pcBuilds[0],
     id: "user-build-2",
     name: "Budget Workstation",
     creator: "AliceSmith",
     createdAt: "2024-01-22",
   },
   {
-    ...pcBuilds[1],
+    ...pcBuilds[0],
     id: "user-build-3",
     name: "Ultra Streaming Setup",
     creator: "StreamerPro",
@@ -67,7 +67,7 @@ const BuildsPage = () => {
     );
     
     if (purpose !== "all") {
-      filteredOfficial = filteredOfficial.filter((build) => build.purpose.includes(purpose));
+      filteredOfficial = filteredOfficial.filter((build) => build.purpose && build.purpose.includes(purpose));
     }
     
     setFilteredOfficialBuilds(filteredOfficial);
@@ -79,7 +79,7 @@ const BuildsPage = () => {
     );
     
     if (purpose !== "all") {
-      filteredUser = filteredUser.filter((build) => build.purpose.includes(purpose));
+      filteredUser = filteredUser.filter((build) => build.purpose && build.purpose.includes(purpose));
     }
     
     setFilteredUserBuilds(filteredUser);
@@ -257,7 +257,7 @@ const BuildsPage = () => {
                             </div>
                             <CardContent className="py-4">
                               <div className="flex flex-wrap gap-1 mb-2">
-                                {build.purpose.map((tag) => (
+                                {build.purpose && build.purpose.map((tag) => (
                                   <Badge key={tag} variant="secondary" className="text-xs">
                                     {tag}
                                   </Badge>
@@ -308,7 +308,7 @@ const BuildsPage = () => {
                                       </div>
                                       
                                       <div className="flex flex-wrap gap-2 mt-2">
-                                        {selectedBuild.purpose.map((tag) => (
+                                        {selectedBuild.purpose && selectedBuild.purpose.map((tag) => (
                                           <Badge key={tag} variant="secondary">
                                             {tag}
                                           </Badge>
@@ -329,9 +329,10 @@ const BuildsPage = () => {
                                       <h3 className="text-lg font-semibold">Components</h3>
                                       <div className="space-y-2">
                                         {componentTypes.map((type) => {
-                                          const component = selectedBuild.components.find(
-                                            (c) => c.type === type.id
-                                          );
+                                          const component = selectedBuild.components && 
+                                            selectedBuild.components.find(
+                                              (c) => c && c.type === type.id
+                                            );
                                           return (
                                             <div key={type.id} className="bg-muted/30 rounded-lg p-3">
                                               <div className="text-sm text-muted-foreground mb-1">
@@ -423,14 +424,14 @@ const BuildsPage = () => {
                                       {build.description}
                                     </p>
                                     <div className="flex flex-wrap gap-1 mb-2">
-                                      {build.purpose.map((tag) => (
+                                      {build.purpose && build.purpose.map((tag) => (
                                         <Badge key={tag} variant="secondary" className="text-xs">
                                           {tag}
                                         </Badge>
                                       ))}
                                     </div>
                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                                      {build.components.slice(0, 3).map((component) => (
+                                      {build.components && build.components.slice(0, 3).map((component) => (
                                         <div
                                           key={component.id}
                                           className="flex items-center space-x-2 text-xs"
@@ -439,7 +440,7 @@ const BuildsPage = () => {
                                           <span className="truncate">{component.name}</span>
                                         </div>
                                       ))}
-                                      {build.components.length > 3 && (
+                                      {build.components && build.components.length > 3 && (
                                         <div className="text-xs text-muted-foreground">
                                           +{build.components.length - 3} more
                                         </div>
@@ -527,7 +528,7 @@ const BuildsPage = () => {
                             </div>
                             <CardContent className="py-4">
                               <div className="flex flex-wrap gap-1 mb-2">
-                                {build.purpose.map((tag) => (
+                                {build.purpose && build.purpose.map((tag) => (
                                   <Badge key={tag} variant="secondary" className="text-xs">
                                     {tag}
                                   </Badge>
@@ -584,7 +585,7 @@ const BuildsPage = () => {
                                       </div>
                                       
                                       <div className="flex flex-wrap gap-2 mt-2">
-                                        {selectedBuild.purpose.map((tag) => (
+                                        {selectedBuild.purpose && selectedBuild.purpose.map((tag) => (
                                           <Badge key={tag} variant="secondary">
                                             {tag}
                                           </Badge>
@@ -605,9 +606,10 @@ const BuildsPage = () => {
                                       <h3 className="text-lg font-semibold">Components</h3>
                                       <div className="space-y-2">
                                         {componentTypes.map((type) => {
-                                          const component = selectedBuild.components.find(
-                                            (c) => c.type === type.id
-                                          );
+                                          const component = selectedBuild.components && 
+                                            selectedBuild.components.find(
+                                              (c) => c && c.type === type.id
+                                            );
                                           return (
                                             <div key={type.id} className="bg-muted/30 rounded-lg p-3">
                                               <div className="text-sm text-muted-foreground mb-1">
@@ -702,14 +704,14 @@ const BuildsPage = () => {
                                       {build.description}
                                     </p>
                                     <div className="flex flex-wrap gap-1 mb-2">
-                                      {build.purpose.map((tag) => (
+                                      {build.purpose && build.purpose.map((tag) => (
                                         <Badge key={tag} variant="secondary" className="text-xs">
                                           {tag}
                                         </Badge>
                                       ))}
                                     </div>
                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                                      {build.components.slice(0, 3).map((component) => (
+                                      {build.components && build.components.slice(0, 3).map((component) => (
                                         <div
                                           key={component.id}
                                           className="flex items-center space-x-2 text-xs"
@@ -718,7 +720,7 @@ const BuildsPage = () => {
                                           <span className="truncate">{component.name}</span>
                                         </div>
                                       ))}
-                                      {build.components.length > 3 && (
+                                      {build.components && build.components.length > 3 && (
                                         <div className="text-xs text-muted-foreground">
                                           +{build.components.length - 3} more
                                         </div>
